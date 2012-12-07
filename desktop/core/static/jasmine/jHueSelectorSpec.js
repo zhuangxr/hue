@@ -1,7 +1,9 @@
 describe("jHueSelector plugin", function () {
 
   beforeEach(function () {
-    jasmine.getFixtures().fixturesPath = 'static/jasmine/';
+    if (jasmine.fromNode == undefined){
+      jasmine.getFixtures().fixturesPath = 'static/jasmine/';
+    }
     loadFixtures('jHueSelectorFixture.html');
     $("#sampleList").jHueSelector();
   });
