@@ -361,5 +361,9 @@ os.environ['KRB5CCNAME'] = desktop.conf.KERBEROS.CCACHE_PATH.get()
 
 # Memory
 if desktop.conf.MEMORY_PROFILER.get():
+  # Hpy
   MEMORY_PROFILER = hpy()
   MEMORY_PROFILER.setrelheap()
+
+  # Dowser
+  INSTALLED_APPS.append('django_dowser')

@@ -24,6 +24,7 @@ from django.conf.urls.defaults import include, patterns
 from django.contrib import admin
 
 from desktop import appmanager
+from desktop import conf
 
 # Django expects handler404 and handler500 to be defined.
 # django.conf.urls.defaults provides them. But we want to override them.
@@ -77,6 +78,11 @@ dynamic_patterns += patterns('desktop.views',
   # Top level web page!
   (r'^$', 'index'),
 )
+
+if conf.MEMORY_PROFILER.get():
+  dynamic_patterns += patterns('',
+    (r'^desktop/debug/dowser/', include('django_dowser.urls'))
+  )
 
 dynamic_patterns += patterns('desktop.api',
   # Tags
