@@ -155,6 +155,8 @@ class WebHdfs(Hdfs):
     listdir_stats(path, glob=None) -> [ WebHdfsStat ]
 
     Get directory listing with stats.
+
+    DEPRECATED use listdir_stats_generator instead
     """
     path = Hdfs.normpath(path)
     params = self._getparams()
@@ -164,6 +166,21 @@ class WebHdfs(Hdfs):
     json = self._root.get(path, params)
     filestatus_list = json['FileStatuses']['FileStatus']
     return [ WebHdfsStat(st, path) for st in filestatus_list ]
+
+  def listdir_stats_generator(self, path, glob=None):
+    """
+    listdir_stats(path, glob=None) -> Generator( WebHdfsStat )
+
+    Get directory listing with stats.DEPRECATED
+    """
+    path = Hdfs.normpath(path)
+    params = self._getparams()
+    if glob is not None:
+      params['filter'] = glob
+    params['op'] = 'LISTSTATUS'
+    json = self._root.get(path, params)
+    filestatus_list = json['FileStatuses']['FileStatus']
+    return ( WebHdfsStat(st, path) for st in filestatus_list )
 
   def listdir(self, path, glob=None):
     """

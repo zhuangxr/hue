@@ -14,10 +14,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ijson
 import logging
 import posixpath
+import StringIO
 
 LOG = logging.getLogger(__name__)
+
+
+class JsonWrapper(object):
+  def __init__(self, buf, prefix, event, value):
+    # Maybe clone buffer
+    self.buf = buf
+    self.prefix = prefix
+    self.event = event
+    self.value = value
+
+    # List items
+    self.indexes = {}
+    self.generators = {}
+
+  def getListItem(self, key):
+    key = int(key)
+    new_prefix = "%s.item" % self.prefix
+
+    # Start over
+    if not self.generators.setdefault(new_prefix, {}) or self.generators[new_prefix]['index'] > key:
+      self.generators[new_prefix]['generator'] = ijson.items(StringIO.StringIO(self.buf), "%s.item" % self.prefix)
+      self.generators[new_prefix]['index'] = 0
+
+    # Find index
+    for item in self.generators[new_prefix]['generator']:
+      if self.generators[new_prefix]['index'] == key:
+        self.generators[new_prefix]['index'] += 1
+        return item
+      else:
+        self.generators[new_prefix]['index'] += 1
+
+    raise IndexError(key)
+
+  def getMapItem(self, key):
+    # String or unicode object
+    if self.prefix:
+      new_prefix = "%s.%s" % (self.prefix, key)
+    else:
+      new_prefix = key
+    found_old_prefix = False
+    for prefix, event, value in ijson.parse(StringIO.StringIO(self.buf)):
+      if not found_old_prefix and prefix.startswith(self.prefix):
+        found_old_prefix = True
+      if found_old_prefix and not prefix.startswith(self.prefix):
+        raise KeyError(key)
+      elif prefix == new_prefix:
+        return JsonWrapper(self.buf, prefix, event, value)
+    raise KeyError(key)
+
+  def __getitem__(self, key):
+    try:
+      return self.getListItem(key)
+    except ValueError:
+      return self.getMapItem(key)
+
+  def __setitem__(self, key, value):
+    NotImplementedError()
+
+  def __delitem__(self, key):
+    NotImplementedError()
 
 
 class Resource(object):
@@ -51,7 +113,10 @@ class Resource(object):
     if len(resp.content) != 0 and resp.headers.get('content-type') and \
           'application/json' in resp.headers.get('content-type'):
       try:
-        return resp.json()
+        if 'FileStatuses' in resp.text:
+          return JsonWrapper(resp.text, '', 'start_map', None)
+        else:
+          return resp.json()
       except Exception, ex:
         self._client.logger.exception('JSON decode error: %s' % resp.content)
         raise ex

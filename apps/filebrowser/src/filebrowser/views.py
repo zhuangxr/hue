@@ -386,7 +386,6 @@ def listdir_paged(request, path):
                                key=operator.attrgetter(sortby),
                                reverse=coerce_bool(descending_param))
 
-
     # Do pagination
     page = paginator.Paginator(all_stats, pagesize).page(pagenum)
     shown_stats = page.object_list
