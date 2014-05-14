@@ -426,6 +426,13 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr, _key_separ
             for chunk in _iterencode_dict(o, _current_indent_level):
                 yield chunk
         else:
+            import types
+            if isinstance(o, types.GeneratorType):
+                # Markers are not checked here because it is valid for an
+                # iterable to return self.
+                for chunk in _iterencode_list(o, _current_indent_level):
+                    yield chunk
+                return
             if markers is not None:
                 markerid = id(o)
                 if markerid in markers:

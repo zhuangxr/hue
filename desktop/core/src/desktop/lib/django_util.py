@@ -22,6 +22,7 @@ import re
 import simplejson
 import socket
 import datetime
+import types
 
 from django.utils.tzinfo import LocalTimezone
 from django.utils.translation import ungettext, ugettext
@@ -259,7 +260,7 @@ def encode_json(data, indent=None):
   Typically this is used from render_json, but it's the natural
   endpoint to test the Encoder logic, so it's separated out.
   """
-  return simplejson.dumps(data, indent=indent, cls=Encoder)
+  return Encoder(indent=indent).iterencode(data)
 
 def encode_json_for_js(data, indent=None):
   """
