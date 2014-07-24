@@ -156,6 +156,31 @@ ${ fb_components.menubar() }
     }
   }
 
+  function getFileType (file) {
+    var ftype = undefined;
+
+    switch (file.toLowerCase()) {
+      case 'zip':
+      case 'gzip':
+        ftype = 'zip';
+        break;
+      case 'avro':
+        ftype = 'avro';
+        break;
+      case 'parquet':
+        ftype = 'parquet';
+        break;
+      case 'snappy':
+        ftype = 'snappy';
+        break;
+      default:
+        ftype = 'data';
+        break;
+    }
+
+    return ftype;
+  }
+
   function getContent (callback) {
     var _baseUrl = "${url('filebrowser.views.view', path=path_enc)}";
 
