@@ -96,6 +96,7 @@ ${ fb_components.menubar() }
             <ul class="dropdown-menu pull-right" style="top: auto">
               <li><a href="#" class="create-file-link" title="${_('File')}"><i class="fa fa-file-o"></i> ${_('File')}</a></li>
               <li><a href="#" class="create-directory-link" title="${_('Directory')}"><i class="fa fa-folder"></i> ${_('Directory')}</a></li>
+              <li><a href="#" class="create-symbolic-link" title="${_('Symbolic Link')}"><i class="fa fa-link"></i> ${_('Symbolic Link')}</a></li>
             </ul>
           </div>
         </div>

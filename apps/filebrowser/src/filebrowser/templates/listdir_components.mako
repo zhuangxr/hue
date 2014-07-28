@@ -344,6 +344,40 @@ from django.utils.translation import ugettext as _
     <div class="modal-footer"></div>
   </div>
 
+  <!-- create symlink modal -->
+  <div id="createSymLinkModal" class="modal hide fade">
+    <form id="createSymLinkForm" data-bind="submit: createSymLink" method="POST" enctype="multipart/form-data" class="form-inline form-padding-fix">
+      <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal">&times;</a>
+        <h3>${_('Create Symbolic Link')}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label>${_('File Name')} <input id="destFileNameInput" name="name" value="" type="text" class="input-xlarge"/></label>
+          <input type="hidden" name="path" type="text" data-bind="value: currentPath"/>
+        </div>
+
+        <div class="form-row">
+          <label>${_('Symbolic Link Name')} <input id="newSymLinkNameInput" name="symlink" value="" type="text" class="input-xlarge"/></label>
+        </div>
+
+        <div class="form-row">
+          <label><input type="checkbox" id="createParent" name="createParent" value="" /> ${_("Create parent directories if they do not exist?")}</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div id="symlinkNameRequiredAlert" class="hide" style="position: absolute; left: 10;">
+          <span class="label label-important">${_('Symbolic Link name is required.')}</span>
+        </div>
+        <div id="symlinkNameExistsAlert" class="hide" style="position: absolute; left: 10;">
+          <span class="label label-important"><span class="newName"></span> ${_('already exists.')}</span>
+        </div>
+        <a class="btn" href="#" data-dismiss="modal">${_('Cancel')}</a>
+        <input class="btn btn-primary" type="submit" value="${_('Create')}" />
+      </div>
+    </form>
+  </div>
+
   <!-- new directory modal -->
   <div id="createDirectoryModal" class="modal hide fade">
     <form id="createDirectoryForm" data-bind="submit: createDirectory" method="POST" enctype="multipart/form-data" class="form-inline form-padding-fix">
@@ -500,16 +534,16 @@ from django.utils.translation import ugettext as _
           group: file.stats.group,
           mtime: file.mtime
         },
-        selected:ko.observable(false),
+        selected: ko.observable(false),
         handleSelect: function (row, e) {
           this.selected(! this.selected());
           viewModel.allSelected(false);
         },
-        hovered:ko.observable(false),
+        hovered: ko.observable(false),
         toggleHover: function (row, e) {
           this.hovered(! this.hovered());
         },
-        tooltip:file.tooltip
+        tooltip: file.tooltip
       }
     };
 
@@ -888,6 +922,11 @@ from django.utils.translation import ugettext as _
         return true;
       };
 
+      self.createSymLink = function (formElement) {
+        $(formElement).attr("action", "/filebrowser/symlink?next=${url('filebrowser.views.view', path=urlencode('/'))}" + "." + self.currentPath());
+          return true;
+      };
+
       self.createFile = function (formElement) {
         $(formElement).attr("action", "/filebrowser/touch?next=${url('filebrowser.views.view', path=urlencode('/'))}" + "." + self.currentPath());
         return true;
@@ -1180,6 +1219,17 @@ from django.utils.translation import ugettext as _
           keyboard:true,
           show:true
         });
+
+        $("#newDirectoryNameInput").focus();
+      });
+
+      $(".create-symbolic-link").click(function () {
+        $("#createSymLinkModal").modal({
+          keyboard:true,
+          show:true
+        });
+
+        $("#destFileNameInput").focus();
       });
 
       $(".create-file-link").click(function () {
@@ -1187,6 +1237,8 @@ from django.utils.translation import ugettext as _
           keyboard:true,
           show:true
         });
+
+        $("#newFileNameInput").focus();
       });
 
       $("#createDirectoryForm").submit(function () {

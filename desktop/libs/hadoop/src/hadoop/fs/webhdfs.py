@@ -341,6 +341,21 @@ class WebHdfs(Hdfs):
     if not success:
       raise IOError(_("Mkdir failed: %s") % path)
 
+  def createSymlink(self, path, symlink, createParent=False):
+    """
+    createSymlink(path, symlink[, False|True])
+
+    Creates a symbolic link for against the path provided.
+    """
+    path = Hdfs.normpath(path)
+    params = self._getparams()
+    params['op'] = 'CREATESYMLINK'
+    params['destination'] = path
+    params['createParent'] = createParent
+    success = self._root.put(path, params)
+    if not success:
+      raise IOError(_("Symbolic link failed: %s") % path)
+
   def rename(self, old, new):
     """rename(old, new)"""
     old = Hdfs.normpath(old)

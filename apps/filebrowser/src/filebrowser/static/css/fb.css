@@ -117,3 +117,13 @@ pre a:hover {
   max-height: 200px;
   overflow-y: auto;
 }
+
+.form-row label {
+  display: block;
+  padding-bottom: .5em;
+  text-align: left;
+}
+
+.form-row input[type=text] {
+  display: block;
+}

@@ -59,7 +59,7 @@ from filebrowser.conf import MAX_SNAPPY_DECOMPRESSION_SIZE
 from filebrowser.lib.archives import archive_factory
 from filebrowser.lib.rwx import filetype, rwx
 from filebrowser.lib import xxd
-from filebrowser.forms import RenameForm, UploadFileForm, UploadArchiveForm, MkDirForm, EditorForm, TouchForm,\
+from filebrowser.forms import RenameForm, UploadFileForm, UploadArchiveForm, SymLinkForm, MkDirForm, EditorForm, TouchForm,\
                               RenameFormSet, RmTreeFormSet, ChmodFormSet, ChownFormSet, CopyFormSet, RestoreFormSet,\
                               TrashPurgeForm
 
@@ -964,6 +964,23 @@ def rename(request):
 
     return generic_op(RenameForm, request, smart_rename, ["src_path", "dest_path"], None)
 
+def symlink(request):
+    def smart_symlink(path, name, symlink, createParent):
+        fullpath = os.path.join(path, name)
+
+        if createParent is "on":
+            createParent = True
+        else:
+            createParent = False
+
+        if posixpath.sep in name or "#" in name:
+            raise PopupException(_("Could not name folder \"%s\": Slashes or hashes are not allowed in filenames." % name))
+
+        if "#" in symlink:
+            raise PopupException(_("Could not create symlink \"%s\": Hashes are not allowed in symbolic link names." % symlink))
+        request.fs.createSymlink(fullpath, symlink, createParent)
+
+    return generic_op(SymLinkForm, request, smart_symlink, ["path", "name", "symlink", "createParent"], None)
 
 def mkdir(request):
     def smart_mkdir(path, name):

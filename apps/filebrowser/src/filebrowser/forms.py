@@ -137,6 +137,13 @@ class MkDirForm(forms.Form):
   path = PathField(label=_("Path in which to create the directory"))
   name = PathField(label=_("Directory Name"))
 
+class SymLinkForm(forms.Form):
+  op = "createSymlink"
+  path = PathField(label=_("Path of the item to be symbolically linked"))
+  name = PathField(label=_("Name of file to be symbolically linked"))
+  symlink = PathField(label=_("Name of symbolic link"))
+  createParent = BooleanField(label=_("Boolean: Create parent directories if they do not exist (defaults to False)"), required=False)
+
 class TouchForm(forms.Form):
   op = "touch"
   path = PathField(label=_("Path in which to create the file"))
