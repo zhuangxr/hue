@@ -291,7 +291,7 @@ from django.utils.translation import ugettext as _
       </div>
       <div class="modal-footer">
         <div>
-          <input type="text" class="input-xlarge disable-autsofocus" value="" name="dest_path" id="moveDestination" placeholder="${_('Select a folder or paste a path...')}" />
+          <input type="text" class="input-xlarge disable-autofocus" value="" name="dest_path" id="moveDestination" placeholder="${_('Select a folder or paste a path...')}" />
           <span id="moveNameRequiredAlert" class="hide label label-important">${_('Required')}</span>
         </div>
         <a class="btn" onclick="$('#moveModal').modal('hide');">${_('Cancel')}</a>
@@ -428,7 +428,7 @@ from django.utils.translation import ugettext as _
   <!-- /ko -->
   <!-- ko if: $root.inTrash -->
     <li><a href="#" title="${_('Restore from trash')}" data-bind="visible: inRestorableTrash() &&  selectedFiles().length > 0 && isCurrentDirSelected().length == 0, click: restoreTrashSelected"><i class="fa fa-cloud-upload"></i> ${_('Restore')}</a></li>
-    <li class="divider"></li>
+    <li class="divider" data-bind="visible: inRestorableTrash() &&  selectedFiles().length > 0 && isCurrentDirSelected().length == 0"></li>
     <li><a href="#" title="${_('Empty trash')}" data-bind="visible: inTrash(), click: purgeTrash"><i class="fa fa-fire"></i> ${_('Empty trash')}</a></li>
   <!-- /ko -->
   </ul>
@@ -444,17 +444,17 @@ from django.utils.translation import ugettext as _
 </div>
 
   <script id="fileTemplate" type="text/html">
-    <tr style="cursor: pointer" data-bind="event: { mouseover: toggleHover, mouseout: toggleHover, contextmenu: showContextMenu }, click: $root.viewFile, css: { 'row-selected': selected() }">
+    <tr style="cursor: pointer" data-bind="event: { mouseover: toggleHover, mouseout: toggleHover, contextmenu: showContextMenu, dragstart: $root.dragMove }, click: $root.viewFile, css: { 'row-selected': selected() }">
       <td class="center" data-bind="click: handleSelect" style="cursor: default">
         <div data-bind="visible: name != '..', css: { hueCheckbox: name != '..', 'fa': name != '..', 'fa-check': selected }"></div>
       </td>
       <td class="left"><i data-bind="click: $root.viewFile, css: { 'fa': true, 'fa-play': $.inArray(name, ['workflow.xml', 'coordinator.xml', 'bundle.xml']) > -1, 'fa-file-o': type == 'file', 'fa-folder': type != 'file', 'fa-folder-open': type != 'file' && hovered }"></i></td>
       <td data-bind="attr: {'title': tooltip}" rel="tooltip">
         <!-- ko if: name == '..' -->
-        <a href="#" data-bind="click: $root.viewFile"><i class="fa fa-level-up"></i></a>
+        <a href="#" data-bind="click: $root.viewFile" class="dropzone"><i class="fa fa-level-up dropzone"></i></a>
         <!-- /ko -->
         <!-- ko if: name != '..' -->
-        <strong><a href="#" data-bind="click: $root.viewFile, text: name"></a></strong>
+        <strong><a href="#" data-bind="click: $root.viewFile, text: name, attr: { 'draggable': $.inArray(name, ['.', '..', '.Trash']) === -1 }, css: { 'dropzone': name !== '.' && type !== 'file' }"></a></strong>
         <!-- /ko -->
       </td>
       <td>
@@ -937,7 +937,7 @@ from django.utils.translation import ugettext as _
         });
       };
 
-      self.move = function () {
+      self.move = function (mode) {
         var paths = [];
 
         $(self.selectedFiles()).each(function (index, file) {
@@ -948,23 +948,44 @@ from django.utils.translation import ugettext as _
 
         $("#moveForm").attr("action", "/filebrowser/move?next=${url('filebrowser.views.view', path=urlencode('/'))}" + "." + self.currentPath());
 
-        $("#moveModal").modal({
-          keyboard:true,
-          show:true
+        if (mode === 'nomodal') {
+          $("#moveForm").submit();
+        } else {
+          $("#moveModal").modal({
+            keyboard: true,
+            show: true
+          });
+
+          $("#moveModal").on("shown", function () {
+            $("#moveModal .modal-footer div").show();
+            $("#moveHdfsTree").remove();
+            $("<div>").attr("id", "moveHdfsTree").appendTo($("#moveModal .modal-body"));
+            $("#moveHdfsTree").jHueHdfsTree({
+              home: viewModel.currentPath(),
+              onPathChange: function (path) {
+                $("#moveDestination").val(path);
+                $("#moveNameRequiredAlert").hide();
+              }
+            });
+          });
+        }
+      };
+
+      // Move items by dragging and dropping onto a directory
+      self.dragMove = function (row, e) {
+        if ($(e.target).is('[draggable]')) {
+          this.selected(true);
+        }
+
+        $('body').on('dragenter', '.dropzone', function (e) {
+          $(this).closest('tr').addClass('drag-hover');
         });
 
-        $("#moveModal").on("shown", function(){
-          $("#moveModal .modal-footer div").show();
-          $("#moveHdfsTree").remove();
-          $("<div>").attr("id", "moveHdfsTree").appendTo($("#moveModal .modal-body"));
-          $("#moveHdfsTree").jHueHdfsTree({
-            home: viewModel.currentPath(),
-            onPathChange: function(path){
-              $("#moveDestination").val(path);
-              $("#moveNameRequiredAlert").hide();
-            }
-          });
+        $('body').on('dragleave dragend', '.dropzone', function (e) {
+          $(this).closest('tr').removeClass('drag-hover');
         });
+
+        return true;
       };
 
       self.copy = function () {
@@ -1333,6 +1354,40 @@ from django.utils.translation import ugettext as _
         $('body').on('dragstart', function (e) {
           // External files being dragged into the DOM won't have a dragstart event
           _isExternalFile = false;
+
+          if(! 'draggable' in document.createElement('div')) {
+            return false;
+          }
+
+          e.originalEvent.dataTransfer.setDragImage(e.target, -25, -15);
+        });
+
+        $('body').on('drop', '.dropzone', function (e) {
+          var destpath,
+            target = e.target,
+            cpath = viewModel.currentPath(),
+            ctarget = e.currentTarget,
+            isDropzone = function () {
+              return $(target).hasClass('dropzone');
+            },
+            isParentDir = function () {
+              return ctarget.innerHTML === '';
+            };
+
+          e.stopPropagation();
+
+          if(isDropzone()) {
+            if (isParentDir()) {
+              destpath = cpath.slice(0, cpath.lastIndexOf('/'));
+            } else {
+              destpath = cpath + '/' + ctarget.innerHTML;
+            }
+          }
+
+          if (destpath) {
+            $('#moveDestination').val(destpath);
+            viewModel.move('nomodal');
+          }
         });
 
         $('body').on('dragend', function (e) {
