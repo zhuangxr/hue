@@ -38,6 +38,26 @@ function loadLayout(viewModel, json_layout) {
           vm: viewModel
         }));
       });
+      $(json_row.columns).each(function (ccnt, column) {
+        var _irows = [];
+        $(column.rows).each(function (ircnt, json_irow) {
+          var _irow = new Row([], viewModel);
+          $(json_irow.widgets).each(function (iwcnt, iwidget) {
+            _irow.addWidget(new Widget({
+              size:iwidget.size,
+              id: iwidget.id,
+              name: iwidget.name,
+              widgetType: iwidget.widgetType,
+              properties: iwidget.properties,
+              offset: iwidget.offset,
+              loading: true,
+              vm: viewModel
+            }));
+          });
+          _irows.push(_irow);
+        });
+        row.addColumn(new Column(column.size, _irows));
+      });
       _rows.push(row);
     });
     var column = new Column(json_col.size, _rows);
@@ -110,6 +130,8 @@ var Workflow = function (vm, workflow) {
 
 var WorkflowEditorViewModel = function (layout_json, workflow_json) {
   var self = this;
+
+  self.isNested = ko.observable(true);
 
   self.isEditing = ko.observable(true);
   self.toggleEditing = function () {

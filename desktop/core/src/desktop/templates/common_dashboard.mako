@@ -126,6 +126,20 @@
   </div>
 </script>
 
+<script type="text/html" id="nested-column-template">
+  <div data-bind="css: klass">
+    <div class="container-fluid" data-bind="visible: $root.isEditing()">
+      <div data-bind="click: function(){$data.addEmptyRow(true)}, css: {'add-row': true, 'is-editing': $root.isEditing}, sortable: { data: drops, isEnabled: $root.isEditing, 'afterMove': function(event){var widget=event.item; var _r = $data.addEmptyRow(true); _r.addWidget(widget);$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)}); columnDropAdditionalHandler(widget)}, options: {'placeholder': 'add-row-highlight', 'greedy': true, 'stop': function(event, ui){$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)});}}}"></div>
+    </div>
+    <div data-bind="template: { name: 'row-template', foreach: rows}">
+    </div>
+    <div class="container-fluid" data-bind="visible: $root.isEditing() && rows().length > 0">
+      <div data-bind="click: function(){$data.addEmptyRow()}, css: {'add-row': true, 'is-editing': $root.isEditing}, sortable: { data: drops, isEnabled: $root.isEditing, 'afterMove': function(event){var widget=event.item; var _r = $data.addEmptyRow(); _r.addWidget(widget);$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)}); columnDropAdditionalHandler(widget)}, options: {'placeholder': 'add-row-highlight', 'greedy': true, 'stop': function(event, ui){$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)});}}}"></div>
+    </div>
+  </div>
+</script>
+
+
 <script type="text/html" id="row-template">
   <div class="emptyRow" data-bind="visible: widgets().length == 0 && $index() == 0 && $root.isEditing() && $parent.size() > 4 && $parent.rows().length == 1">
     <img src="/static/art/hint_arrow_flipped.png" style="float:left; margin-right: 10px"/>
@@ -141,12 +155,21 @@
         <a href="javascript:void(0)" data-bind="visible: $parent.rows().length > 1, click: function(){remove($parent, this)}"><i class="fa fa-times"></i></a>
       </div>
     </div>
-    <div data-bind="css: {'row-fluid': true, 'row-container':true, 'is-editing': $root.isEditing},
+    <div data-bind="style: { 'border-bottom': $root.isNested() ? 'none' : '' }, css: {'row-fluid': true, 'row-container':true, 'is-editing': $root.isEditing},
         sortable: { template: 'widget-template', data: widgets, isEnabled: $root.isEditing,
         options: {'handle': '.move-widget', 'opacity': 0.7, 'placeholder': 'row-highlight', 'greedy': true,
             'stop': function(event, ui){$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)});},
             'helper': function(event){lastWindowScrollPosition = $(window).scrollTop(); $('.card-body').slideUp('fast'); var _par = $('<div>');_par.addClass('card card-widget');var _title = $('<h2>');_title.addClass('card-heading simple');_title.text($(event.toElement).text());_title.appendTo(_par);_par.height(80);_par.width(180);return _par;}},
             dragged: function(widget){$('.card-body').slideDown('fast', function(){$(window).scrollTop(lastWindowScrollPosition)});widgetDraggedAdditionalHandler(widget)}}">
+    </div>
+    <div class="container-fluid" data-bind="visible: $root.isNested" style="border: 1px solid #e5e5e5; border-top: none; background-color: #F3F3F3;">
+      <div data-bind="css: {'row-fluid': true, 'row-container':true, 'is-editing': $root.isEditing}">
+        <div data-bind="visible: $root.isEditing()" class="pull-right" style="width: 20px;">
+          <div data-bind="click: function(){ $data.addEmptyColumn(); }" style="background-color: orange">+</div>
+        </div>
+        <div data-bind="template: { name: 'column-template', foreach: columns}">
+        </div>
+      </div>
     </div>
   </div>
 </script>
