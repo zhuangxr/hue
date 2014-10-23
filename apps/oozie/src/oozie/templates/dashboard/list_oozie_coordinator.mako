@@ -27,6 +27,7 @@ ${ commonheader(_("Coordinator Dashboard"), "oozie", user) | n,unicode }
 ${ layout.menubar(section='coordinators', dashboard=True) }
 
 <link rel="stylesheet" href="/oozie/static/css/coordinator.css" type="text/css" />
+<link rel="stylesheet" href="/static/ext/css/codemirror.css" type="text/css" />
 
 <div class="container-fluid">
   <div class="card card-small">
@@ -103,6 +104,15 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
                      " style="margin-bottom: 5px">
                     ${ _('Resume') }
                   </button>
+                   <button data-bind="enable: selectedActions().length > 0" class="btn btn-default endtime-btn
+                      % if oozie_coordinator.is_running() or oozie_coordinator.status in ('KILLED'):
+                        hide
+                      % endif
+                   "
+                     data-rerun-url="${ url('oozie:rerun_oozie_coord', job_id=oozie_coordinator.id, app_path=oozie_coordinator.coordJobPath) }"
+                   style="margin-bottom: 5px">
+                     ${ _('Change Endtime') }
+                   </button>
                   <br/>
                   <button title="${_('Kill %(coordinator)s') % dict(coordinator=oozie_coordinator.id)}"
                    id="kill-btn"
@@ -363,10 +373,39 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
 
 <div id="rerun-coord-modal" class="modal hide"></div>
 
+<div id="endtime" class="modal hide" style="min-height: 200px;">
+  <form action="" method="PUT" class="endtime-modal">
+    ${ csrf_token(request) | n,unicode }
+    <div class="modal-header">
+      <a href="#" class="close" data-dismiss="modal">&times;</a>
+      <h3>${ _('Enter new endtime') }</h3>
+    </div>
+    <div class="modal-body">
+      ## ${ utils.render_field_no_popover(coordinator_form['end']) }
+      <div class="control-group ">
+        <label class="control-label">End</label>
+        <div class="controls">
+          <div class="input-append date" style="margin-right: 8px;">
+            <input value="06/05/2013" type="text" class="input-small dateInput" name="end_0" id="coordinator_end_0">
+            <span class="add-on"><i class="fa fa-th"></i></span>
+          </div>
+          <div class="input-append date bootstrap-timepicker-component">
+            <input value="12:00 AM" type="text" class="input-mini timepicker-default" name="end_1" id="coordinator_end_1">
+            <span class="add-on"><i class="fa fa-clock-o"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">${ _('Cancel') }</a>
+      <input id="submit-btn" type="submit" class="btn btn-primary" value="${ _('Submit') }"/>
+    </div>
+  </form>
+</div>
+
 <script src="/oozie/static/js/bundles.utils.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/ext/js/knockout-min.js" type="text/javascript" charset="utf-8"></script>
-<script src="/static/ext/js/codemirror-3.11.js"></script>
-<link rel="stylesheet" href="/static/ext/css/codemirror.css">
+<script src="/static/ext/js/codemirror-3.11.js" type="text/javascript"></script>
 <script src="/static/ext/js/codemirror-xml.js"></script>
 
 % if oozie_coordinator.has_sla:
@@ -670,6 +709,19 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
       });
     });
 
+    $('.endtime-btn').on('click', function (e) {
+      var jobid = '${ oozie_coordinator.coordJobPath  }'.split('-')[2],
+        path = '/oozie/submit_coordinator/' + jobid + '?action=change&value=endtime=';
+
+      $('.endtime-modal').attr('action', path);
+      $('#endtime').modal('show')
+    });
+
+    $('.endtime-modal').on('submit', function (e) {
+      $(this).action += $('.endtime').val();
+      return false;
+    });
+
     resizeLogs();
     refreshView();
     refreshLogs();
@@ -763,4 +815,5 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
   });
 </script>
 
+<!-- ##${ utils.decorate_datetime_fields() } -->
 ${ commonfooter(messages) | n,unicode }
