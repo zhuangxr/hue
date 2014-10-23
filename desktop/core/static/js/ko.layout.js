@@ -59,6 +59,16 @@ var Row = function (widgets, vm, columns) {
   };
 
   self.addEmptyColumn = function () {
+    if (self.columns().length == 0){
+      var _col = self.addColumn(null);
+      if (self.widgets().length > 0){
+        var _row = _col.addEmptyRow();
+        self.widgets().forEach(function(widget){
+          _row.addWidget(widget);
+        });
+        self.widgets([]);
+      }
+    }
     return self.addColumn(null);
   };
 
@@ -71,6 +81,7 @@ var Row = function (widgets, vm, columns) {
       });
     }
     self.columns.push(column);
+    return column;
   };
 
   self.move = function (from, to) {

@@ -41,39 +41,48 @@ class Workflow():
       self.data = data
     else:
       self.data = json.dumps({
-          'layout': [
-              #{"size":12,"rows":[{"widgets":[]}],"drops":["temp"],"klass":"card card-home card-column span2"}
-            {
-              "size":12,
-              "rows":[
-                {
-                  "columns": [{
-                    "size":12,
-                    "rows":[{
-                      "widgets":[{ "size":12, "name":"Start", "id":"3f107997-04cc-8733-60a9-a4bb62cebffc", "widgetType":"start-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}
-                    ]
-                  }]
-                },
-
-
-                {
-                  "widgets":[
-                    { "size":12, "name":"Start", "id":"3f107997-04cc-8733-60a9-a4bb62cebffc", "widgetType":"start-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]},
-      {"widgets":[], "columns": [
-        {"size":6, "rows":[
-          {"widgets":[{"size":12, "name":"End", "id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a", "widgetType":"end-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}
-        ]}
-      ]},
-      {"widgets":[{"size":12, "name":"End", "id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a", "widgetType":"end-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}], 
-   "drops":[ "temp"],
-   "klass":"card card-home card-column span12"}              
-          ],
-           'workflow': workflow if workflow is not None else {"id": None,"uuid":"549e2697-97cf-f931-2ce4-83dfdd03b7e7","name":"",
-   "properties":{"job_xml":"","sla_enabled":False,"schema_version":"uri:oozie:workflow:0.4","sla_workflow_enabled":False,"credentials":[],"properties":{}},
-   "nodes":[{"id":"3f107997-04cc-8733-60a9-a4bb62cebffc","name":"Start","type":"start-widget","properties":{},"children":[{'to': '33430f0f-ebfa-c3ec-f237-3e77efa03d0a'}]},            
-            {"id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a","name":"End","type":"end-widget","properties":{},"children":[]}]
-   }
+        'layout': [],
+        'workflow': workflow if workflow is not None else {"id": None,"uuid":"549e2697-97cf-f931-2ce4-83dfdd03b7e7","name":"",
+           "properties":{"job_xml":"","sla_enabled":False,"schema_version":"uri:oozie:workflow:0.4","sla_workflow_enabled":False,"credentials":[],"properties":{}},
+           "nodes":[{"id":"3f107997-04cc-8733-60a9-a4bb62cebffc","name":"Start","type":"start-widget","properties":{},"children":[{'to': '33430f0f-ebfa-c3ec-f237-3e77efa03d0a'}]},
+                    {"id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a","name":"End","type":"end-widget","properties":{},"children":[]}]
+           }
       })
+   #    self.data = json.dumps({
+   #        'layout': [
+   #          {
+   #            "size":12,
+   #            "rows":[
+   #              {
+   #                "columns": [{
+   #                  "size":12,
+   #                  "rows":[{
+   #                    "widgets":[{ "size":12, "name":"Start", "id":"3f107997-04cc-8733-60a9-a4bb62cebffc", "widgetType":"start-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}
+   #                  ]
+   #                }]
+   #              },
+   #
+   #
+   #              {
+   #                "widgets":[
+   #                  { "size":12, "name":"Start", "id":"3f107997-04cc-8733-60a9-a4bb62cebffc", "widgetType":"start-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]},
+   #    {"widgets":[], "columns": [
+   #      {"size":6, "rows":[
+   #        {"widgets":[{"size":12, "name":"End", "id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a", "widgetType":"end-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}
+   #      ]}
+   #    ]},
+   #    {"widgets":[{"size":12, "name":"End", "id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a", "widgetType":"end-widget", "properties":{}, "offset":0, "isLoading":False, "klass":"card card-widget span12"}]}],
+   # "drops":[ "temp"],
+   # "klass":"card card-home card-column span12"}
+   #        ],
+   #         'workflow': workflow if workflow is not None else {"id": None,"uuid":"549e2697-97cf-f931-2ce4-83dfdd03b7e7","name":"",
+   # "properties":{"job_xml":"","sla_enabled":False,"schema_version":"uri:oozie:workflow:0.4","sla_workflow_enabled":False,"credentials":[],"properties":{}},
+   # "nodes":[{"id":"3f107997-04cc-8733-60a9-a4bb62cebffc","name":"Start","type":"start-widget","properties":{},"children":[{'to': '33430f0f-ebfa-c3ec-f237-3e77efa03d0a'}]},
+   #          {"id":"33430f0f-ebfa-c3ec-f237-3e77efa03d0a","name":"End","type":"end-widget","properties":{},"children":[]}]
+   # }
+   #    })
+
+
   
   def get_json(self):
     _data = self.get_data()

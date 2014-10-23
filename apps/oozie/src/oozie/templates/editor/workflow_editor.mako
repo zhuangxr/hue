@@ -218,6 +218,7 @@ ${ dashboard.import_bindings() }
   ko.applyBindings(viewModel);
 
   viewModel.init();
+  fullLayout(viewModel);
 
   function columnDropAdditionalHandler(widget) {
     widgetDraggedAdditionalHandler(widget);

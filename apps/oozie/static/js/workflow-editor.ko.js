@@ -162,6 +162,23 @@ var WorkflowEditorViewModel = function (layout_json, workflow_json) {
     return _widget;
   }
 
+  self.removeWidget = function (widget_json) {
+    self.removeWidgetById(widget_json.id());
+  }
+
+  self.removeWidgetById = function (widget_id) {
+    $.each(self.columns(), function (i, col) {
+      $.each(col.rows(), function (j, row) {
+        $.each(row.widgets(), function (z, widget) {
+          if (widget.id() == widget_id){
+            row.widgets.remove(widget);
+          }
+        });
+      });
+    });
+  }
+
+
   self.save = function () {
     $.post("/oozie/editor/workflow/save/", {        
         "layout": ko.mapping.toJSON(self.columns),
