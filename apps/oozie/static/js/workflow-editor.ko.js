@@ -14,6 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+ko.bindingHandlers.droppable = {
+  init: function(element, valueAccessor) {
+    var _dropElement = $(element);
+    var _options = valueAccessor();
+
+    if (_options.enabled){
+      var _dropOptions = {
+        hoverClass: 'drag-hover',
+        drop: _options.onDrop
+      };
+      _dropElement.droppable(_dropOptions);
+    }
+  }
+};
+
+
 function magicLayout(vm) {
   loadLayout(vm, vm.initial.layout);
   $(document).trigger("magicLayout");
