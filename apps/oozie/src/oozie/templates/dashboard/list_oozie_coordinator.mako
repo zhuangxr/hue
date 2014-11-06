@@ -80,7 +80,7 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
                 % endif
               % endif
 
-              % if has_job_edition_permission(oozie_coordinator, user) and oozie_coordinator.status not in ('KILLED', 'KILLED', 'SUCCEEDED'):
+              % if has_job_edition_permission(oozie_coordinator, user) and oozie_coordinator.status not in ('KILLED',):
                 <li class="nav-header">${ _('Manage') }</li>
                 <li class="white">
                   <div id="rerun-coord-modal" class="modal hide"></div>
@@ -710,11 +710,22 @@ ${ layout.menubar(section='coordinators', dashboard=True) }
     });
 
     $('.endtime-btn').on('click', function (e) {
-      var jobid = '${ oozie_coordinator.coordJobPath  }'.split('-')[2],
+      var jobid = '${ coordinator.id  }',
         path = '/oozie/submit_coordinator/' + jobid + '?action=change&value=endtime=';
 
       $('.endtime-modal').attr('action', path);
       $('#endtime').modal('show')
+      console.log(jobid, path);
+      console.log("${ url('oozie:submit_coordinator', coordinator=coordinator.id, action='change') }");
+/*
+      $.get(_action, function(response) {
+        var modal = $('#endtime');
+
+        $('.endtime-modal').attr('action', path);
+        modal.html(response);
+        modal.modal('show');
+      });
+*/
     });
 
     $('.endtime-modal').on('submit', function (e) {

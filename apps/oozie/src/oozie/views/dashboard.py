@@ -45,6 +45,7 @@ from oozie.forms import RerunForm, ParameterForm, RerunCoordForm,\
 from oozie.models import History, Job, Workflow, utc_datetime_format, Bundle,\
   Coordinator, get_link
 from oozie.settings import DJANGO_APPS
+from oozie.decorators import check_job_access_permission, check_job_edition_permission
 
 
 LOG = logging.getLogger(__name__)
@@ -351,6 +352,14 @@ def list_oozie_bundle(request, job_id):
     'has_job_edition_permission': has_job_edition_permission,
   })
 
+@check_job_access_permission()
+@check_job_edition_permission()
+def edit_coordinator_endtime(request):
+    if request.method == "PUT":
+        return render('dashboard/edit_coordinator_endtime_popup.mako', request, {
+          'action': 'change',
+          'value': 'endtime'
+        })
 
 @show_oozie_error
 def list_oozie_workflow_action(request, action):

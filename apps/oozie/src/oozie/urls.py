@@ -104,4 +104,6 @@ urlpatterns += patterns(
   url(r'^list_oozie_info/$', 'list_oozie_info', name='list_oozie_info'),
 
   url(r'^list_oozie_sla/$', 'list_oozie_sla', name='list_oozie_sla'),
+
+  url(r'^submit_coordinator/(?P<coordinator>\d+)/(?P<action>)$', 'list_oozie_coordinator', name='edit_coordinator_endtime'),
 )
